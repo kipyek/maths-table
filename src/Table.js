@@ -1,9 +1,13 @@
-import { StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
+import { StyleSheet, Text, View, SectionList } from 'react-native'
+
 
 const Table = () => {
   const [num, setNum] = useState([]);
+  const [group, setGroup] = useState({});
   const [multiplier, setMultiplier] = useState(0)
+
+  useEffect(() => { tableData() }, [])
 
 
   const tableData = () => {
@@ -14,6 +18,7 @@ const Table = () => {
 
         const multiplicationObject = {
           operand1: i,
+          operand2: number,
           expression: `${i} * ${number} = ${multiplication}`
         };
 
@@ -22,23 +27,50 @@ const Table = () => {
     }
 
     setNum(multiplicationObjects)
+    const groupedData = {}
+
+    multiplicationObjects.forEach(item => {
+      const operand = item.operand1;
+      if (!groupedData[operand]) {
+        groupedData[operand] = [];
+      }
+      groupedData[operand].push(item);
+    });
+    console.log("grouped", groupedData)
+    setGroup(groupedData)
 
   }
 
 
-  return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text onPress={tableData}>Table</Text>
-      <View>
-        <Text>gh</Text>
-        {num.map((i) =>
-          <View>
-            {i.operand1 == 1 ? <Text>{i.expression}</Text> : null}
-            {i.operand1 == 10 ? <Text>{i.expression}</Text> : null}
-          </View>
+  const sections = Object.keys(group).map(key => ({
+    title: `Multiplication By: ${key}`,
+    data: group[key]
+  }));
 
-        )}
-      </View>
+  // Render item for SectionList
+  const renderItem = ({ item }) => (
+    <View style={{ padding: 4 }}>
+      <Text>{item.expression}</Text>
+    </View>
+  );
+
+  // Render section header for SectionList
+  const renderSectionHeader = ({ section }) => (
+    <View style={{ backgroundColor: '#f2f2f2', padding: 10 }}>
+      <Text>{section.title}</Text>
+    </View>
+  );
+
+
+  return (
+    <View style={{ flex: 1, marginTop: 40, backgroundColor: "red" }}>
+      <SectionList
+        sections={sections}
+        initialNumToRender={6}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderItem}
+        renderSectionHeader={renderSectionHeader}
+      />
 
     </View>
   )
